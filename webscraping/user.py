@@ -54,18 +54,39 @@ def download_user_data(driver, user_id):
     reviews_url = driver.find_element_by_css_selector('body > div.content > div.mainContentContainer > div.mainContent > div.mainContentFloat > div.leftContainer > div.leftAlignedProfilePicture > div > a:nth-child(5)').get_attribute('href')+'&shelf=read'
     driver.get(reviews_url)
 
-    scroll(driver, 5)
+    # scroll(driver, 5)
     rows = driver.find_element_by_id('booksBody').find_elements_by_tag_name('tr')
 
     user_reviews_data = []
     for row in rows:
         review_data = parse_review(driver, row)
+        clean_data(review_data)
         user_reviews_data.append(review_data)
         print(review_data)
 
-def main():
+def clean_data(cleaned_data):
+    cleaned_data[0],cleaned_data[3] = int(cleaned_data[0]), float(cleaned_data[3])
+    try:
+        cleaned_data[5] = cleaned_data[5].rstrip('\n...more')
+    except:
+        pass
+    if cleaned_data[4] == 'did not like it':
+        cleaned_data[4] = 1
+    elif cleaned_data[4] == 'it was ok':
+        cleaned_data[4] = 2
+    elif cleaned_data[4] == 'liked it':
+        cleaned_data[4] = 3
+    elif cleaned_data[4] == 'really liked it':
+        cleaned_data[4] = 4
+    elif cleaned_data[4] == 'it was amazing':
+        cleaned_data[4] = 5
+    cleaned_data[5] = cleaned_data[5].replace("\n","")
+    return cleaned_data
 
-    driver = webdriver.Chrome('C:\ChromeDriver\chromedriver.exe') 
+
+def main():
+    #driver = webdriver.Chrome('C:\ChromeDriver\chromedriver.exe')
+    driver = webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') 
     #driver.set_window_position(-2000,0)#this function will minimize the window
 
     first_user = 1

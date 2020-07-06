@@ -25,10 +25,11 @@ driver = webdriver.Chrome('C:\ChromeDriver\chromedriver.exe')
 actions = ActionChains(driver)
 #driver.set_window_position(-2000,0)#this function will minimize the window
 
+first_user = 1
 last_user = 2
 
-for user_id in range(1, last_user):
-    driver.get(f'https://www.goodreads.com/user/show/{88298435}')
+for user_id in range(first_user, last_user):
+    driver.get(f'https://www.goodreads.com/user/show/{user_id}')
     
     reviews_url = driver.find_element_by_css_selector('body > div.content > div.mainContentContainer > div.mainContent > div.mainContentFloat > div.leftContainer > div.leftAlignedProfilePicture > div > a:nth-child(5)').get_attribute('href')+'&shelf=read'
     driver.get(reviews_url)
@@ -57,6 +58,8 @@ for user_id in range(1, last_user):
             cols.insert(3, 'NULL')
         cols.pop(4) # drop "my rating"
 
+        book_id = row.find_element_by_css_selector('.field.cover > div.value div[data-resource-id]').get_attribute('data-resource-id')
+        print(book_id)
         user_reviews_data.append(cols[:5])
         print(cols[:5])
         

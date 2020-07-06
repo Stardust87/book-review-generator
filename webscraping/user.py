@@ -68,7 +68,7 @@ def download_user_data(driver, user_id):
 def clean_data(cleaned_data):
     cleaned_data[0],cleaned_data[3] = int(cleaned_data[0]), float(cleaned_data[3])
     try:
-        cleaned_data[5] = cleaned_data[5].rstrip('\n...more')
+        cleaned_data[5] = cleaned_data[5].replace('\n...more','')
     except:
         pass
     if cleaned_data[4] == 'did not like it':

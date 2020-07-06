@@ -6,7 +6,8 @@ def scroll(driver, timeout):
     last_height = driver.execute_script("return document.body.scrollHeight")
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(timeout)
-
+    time_start = time.time()
+    
     while True:
         new_height = driver.execute_script("return document.body.scrollHeight")
 
@@ -54,7 +55,7 @@ def download_user_data(driver, user_id):
     reviews_url = driver.find_element_by_css_selector('body > div.content > div.mainContentContainer > div.mainContent > div.mainContentFloat > div.leftContainer > div.leftAlignedProfilePicture > div > a:nth-child(5)').get_attribute('href')+'&shelf=read'
     driver.get(reviews_url)
 
-    # scroll(driver, 5)
+    scroll(driver, 5)
     rows = driver.find_element_by_id('booksBody').find_elements_by_tag_name('tr')
 
     user_reviews_data = []
@@ -85,8 +86,8 @@ def clean_data(cleaned_data):
 
 
 def main():
-    #driver = webdriver.Chrome('C:\ChromeDriver\chromedriver.exe')
-    driver = webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') 
+    driver = webdriver.Chrome('C:\ChromeDriver\chromedriver.exe')
+    # driver = webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') 
     #driver.set_window_position(-2000,0)#this function will minimize the window
 
     first_user = 1

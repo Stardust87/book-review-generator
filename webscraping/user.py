@@ -1,9 +1,11 @@
 import time
-from bs4 import BeautifulSoup
-from selenium import webdriver
 import random
 import threading
 import numpy as np
+from bs4 import BeautifulSoup
+from selenium import webdriver
+
+from utils import save_json
 
 def scroll(driver, timeout):
     last_height = driver.execute_script("return document.body.scrollHeight")
@@ -61,7 +63,6 @@ def download_user_data(driver, user_id):
         review_data = parse_review(driver, row)
         cleaned_data = clean_data(review_data)
         user_reviews_data.append(cleaned_data)
-        print(cleaned_data)
 
     return user_reviews_data
 
@@ -78,12 +79,22 @@ def clean_data(cleaned_data):
 
     cleaned_data[5] = cleaned_data[5].replace("\n","")
 
-    return cleaned_data
+    review_data = {
+        'book_id': cleaned_data[0],
+        'book_title': cleaned_data[1],
+        'book_author': cleaned_data[2],
+        'book_avg_rating': cleaned_data[3],
+        'user_rating': cleaned_data[4],
+        'user_review': cleaned_data[5]
+    }
+
+    return review_data
 
 def download_users(driver, users):
     for user_id in users:
         try:
             user_data = download_user_data(driver, user_id)
+            save_json(user_data, f'./data/users/user_{user_id}.json')
             print(f'Downloaded user: {user_id}')
         except:
             # TODO: Log unsuccsessful downloads
@@ -97,9 +108,10 @@ def main():
     sample = random.sample(range(1, 110000000), num_of_users_per_driver*num_of_drivers)
     users_batch = np.split(np.array(sample), num_of_drivers)
 
-    # drivers = [ webdriver.Chrome('C:\ChromeDriver\chromedriver.exe') for _ in range(num_of_drivers) ]
-    drivers = [ webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') for _ in range(num_of_drivers) ]
+    drivers = [ webdriver.Chrome('C:\ChromeDriver\chromedriver.exe') for _ in range(num_of_drivers) ]
+    # drivers = [ webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') for _ in range(num_of_drivers) ]
     #driver.set_window_position(-2000,0)#this function will minimize the window
+
     threads = []
     for k in range(num_of_drivers):
         t = threading.Thread(target=download_users, args=[drivers[k], users_batch[k]])

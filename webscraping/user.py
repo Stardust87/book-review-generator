@@ -97,8 +97,8 @@ def main():
     sample = random.sample(range(1, 110000000), num_of_users_per_driver*num_of_drivers)
     users_batch = np.split(np.array(sample), num_of_drivers)
 
-    drivers = [ webdriver.Chrome('C:\ChromeDriver\chromedriver.exe') for _ in range(num_of_drivers) ]
-    # driver = webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') 
+    # drivers = [ webdriver.Chrome('C:\ChromeDriver\chromedriver.exe') for _ in range(num_of_drivers) ]
+    drivers = [ webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') for _ in range(num_of_drivers) ]
     #driver.set_window_position(-2000,0)#this function will minimize the window
     threads = []
     for k in range(num_of_drivers):

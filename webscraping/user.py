@@ -5,7 +5,7 @@ import numpy as np
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-from utils import save_json
+from utils import save_json, get_downloaded_user_ids
 
 def scroll(driver, timeout):
     last_height = driver.execute_script("return document.body.scrollHeight")
@@ -94,18 +94,21 @@ def download_users(driver, users):
     for user_id in users:
         try:
             user_data = download_user_data(driver, user_id)
-            save_json(user_data, f'./data/users/user_{user_id}.json')
-            print(f'Downloaded user: {user_id}')
+            if not user_data:
+                print(f'User {user_id} has no reviews nor ratings')
+            else:
+                save_json(user_data, f'./data/users/user_{user_id}.json')
+                print(f'Downloaded user: {user_id}')
         except:
             # TODO: Log unsuccsessful downloads
             print(f'Could not download user: {user_id}')
-        
 
 def main():
-    num_of_users_per_driver = 25
-    num_of_drivers = 3
+    num_of_users_per_driver = 2450
+    num_of_drivers = 4
+    max_user = 110000000
 
-    sample = random.sample(range(1, 110000000), num_of_users_per_driver*num_of_drivers)
+    sample = random.sample(range(1, 10000), num_of_users_per_driver*num_of_drivers)
     users_batch = np.split(np.array(sample), num_of_drivers)
 
     drivers = [ webdriver.Chrome('C:\ChromeDriver\chromedriver.exe') for _ in range(num_of_drivers) ]
@@ -115,13 +118,18 @@ def main():
     threads = []
     for k in range(num_of_drivers):
         t = threading.Thread(target=download_users, args=[drivers[k], users_batch[k]])
+        threads.append(t)
         t.start()
 
     for t in threads:
         t.join()            
-        
+
 if __name__ == '__main__':
+    start = time.perf_counter()
     main()
+    end = time.perf_counter()
+    print(f'TASK FINISHED IN {end-start} seconds.')
+            
 
 
 # driver.quit()

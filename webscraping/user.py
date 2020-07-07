@@ -64,22 +64,15 @@ def download_user_data(driver, user_id):
 
 def clean_data(cleaned_data):
     cleaned_data[0],cleaned_data[3] = int(cleaned_data[0]), float(cleaned_data[3])
-    
+
     try:
         cleaned_data[5] = cleaned_data[5].replace('\n...more','')
     except:
         pass
 
-    if cleaned_data[4] == 'did not like it':
-        cleaned_data[4] = 1
-    elif cleaned_data[4] == 'it was ok':
-        cleaned_data[4] = 2
-    elif cleaned_data[4] == 'liked it':
-        cleaned_data[4] = 3
-    elif cleaned_data[4] == 'really liked it':
-        cleaned_data[4] = 4
-    elif cleaned_data[4] == 'it was amazing':
-        cleaned_data[4] = 5
+    rating_map = { 'NULL': -1, 'did not like it': 1, 'it was ok': 2, 'liked it': 3, 'really liked it': 4, 'it was amazing': 5 }
+    cleaned_data[4] = rating_map[cleaned_data[4]]
+
     cleaned_data[5] = cleaned_data[5].replace("\n","")
 
     return cleaned_data
@@ -94,7 +87,12 @@ def main():
     last_user = 110000000
 
     for user_id in range(first_user, last_user):
-        download_user_data(driver, user_id)
+        try:
+            download_user_data(driver, user_id)
+        except:
+            # TODO: Log unsuccsessful downloads
+            pass
+            
         
 if __name__ == '__main__':
     main()

@@ -1,6 +1,9 @@
 import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
+import random
+import threading
+import numpy as np
 
 def scroll(driver, timeout):
     last_height = driver.execute_script("return document.body.scrollHeight")
@@ -77,22 +80,33 @@ def clean_data(cleaned_data):
 
     return cleaned_data
 
-
-def main():
-    driver = webdriver.Chrome('C:\ChromeDriver\chromedriver.exe')
-    # driver = webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') 
-    #driver.set_window_position(-2000,0)#this function will minimize the window
-
-    first_user = 1
-    last_user = 110000000
-
-    for user_id in range(first_user, last_user):
+def download_users(driver, users):
+    for user_id in users:
         try:
-            download_user_data(driver, user_id)
+            user_data = download_user_data(driver, user_id)
+            print(f'Downloaded user: {user_id}')
         except:
             # TODO: Log unsuccsessful downloads
-            pass
-            
+            print(f'Could not download user: {user_id}')
+        
+
+def main():
+    num_of_users_per_driver = 25
+    num_of_drivers = 3
+
+    sample = random.sample(range(1, 110000000), num_of_users_per_driver*num_of_drivers)
+    users_batch = np.split(np.array(sample), num_of_drivers)
+
+    drivers = [ webdriver.Chrome('C:\ChromeDriver\chromedriver.exe') for _ in range(num_of_drivers) ]
+    # driver = webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') 
+    #driver.set_window_position(-2000,0)#this function will minimize the window
+    threads = []
+    for k in range(num_of_drivers):
+        t = threading.Thread(target=download_users, args=[drivers[k], users_batch[k]])
+        t.start()
+
+    for t in threads:
+        t.join()            
         
 if __name__ == '__main__':
     main()

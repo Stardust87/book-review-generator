@@ -5,12 +5,6 @@ def save_json(data, filename):
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)
 
-def read_json(filename):
-    with open(filename) as json_file:
-        data = json.load(json_file)
-    
-    return data
-
 def get_downloaded_user_ids(path):
     filenames = [ f.split('\\')[-1] for f in glob.glob(path)]
     user_ids = [ int(f.split('_')[-1].split('.')[0]) for f in filenames ]

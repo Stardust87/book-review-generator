@@ -9,14 +9,14 @@ def connect_db(path_to_key):
     db = firestore.client()
     return db
 
-if __name__ == "__main__":
-    db = connect_db("./database/private_key.json")
+# if __name__ == "__main__":
+#     db = connect_db("./database/private_key.json")
 
-    books_ref = db.collection(u'books')
-    docs = books_ref.stream()
-    for doc in docs:
-        print(f'{doc.id} => {doc.to_dict()}')
-        reviews_ref = books_ref.document(doc.id).collection(u'reviews')
-        reviews = reviews_ref.stream()
-        for review in reviews:
-            print(f'{review.id} => {review.to_dict()}')
+#     books_ref = db.collection(u'books')
+#     docs = books_ref.stream()
+#     for doc in docs:
+#         print(f'{doc.id} => {doc.to_dict()}')
+#         reviews_ref = books_ref.document(doc.id).collection(u'reviews')
+#         reviews = reviews_ref.stream()
+#         for review in reviews:
+#             print(f'{review.id} => {review.to_dict()}')

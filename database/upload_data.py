@@ -1,10 +1,14 @@
 import glob
 import json
+import shutil
 
 from api import FireAPI
 
 def parse_review_entry(book_review, user_id):
     book_id = str(book_review['book_id'])
+
+    if book_review['user_rating'] == -1 and book_review['user_review'] == "None":
+        return None
 
     book = {
         u'author': book_review['book_author'],
@@ -28,23 +32,37 @@ def read_user(filename):
     user_reviews = []
 
     for book_review in data:
-        book, review = parse_review_entry(book_review, user_id)
-        user_reviews.append((book, review))
+        parsed = parse_review_entry(book_review, user_id)
+        if not parsed:
+            continue
+        else:
+            book, review = parsed
+            user_reviews.append((book, review))
 
     return user_reviews
 
 def upload_user(api, filename):
     user_data = read_user(filename)
 
-    for book_obj, review_obj in user_data:
-        api.add_book(*book_obj)
-        api.add_review(book_obj[0], review_obj)
+    if len(user_data) > 1:
+        # for book_obj, review_obj in user_data:
+        #     api.add_book(*book_obj)
+        #     api.add_review(book_obj[0], review_obj)
+        
+        destination = filename.split('\\users')
+        destination.insert(1, '\\uploaded_users')
+
+        shutil.move(filename, ''.join(destination))
+    else: 
+        user_id = filename.split('\\')[-1]
+        print(f"User {user_id} has less than or equal to 1 valid reviews, it's worthless.")
+        destination = filename.split('\\users')
+        destination.insert(1, '\\worthless_users')
+
+        shutil.move(filename, ''.join(destination))
 
 
-if __name__ == "__main__":
-    USER_PATH = '.\\data\\users\\'
-    KEY_PATH = '.\\database\\private_key.json'
-
+def upload_downloaded_users(users_path, key):
     api = FireAPI(KEY_PATH)
 
     user_paths = glob.glob(USER_PATH+'*')
@@ -52,4 +70,9 @@ if __name__ == "__main__":
         upload_user(api, path)
         print(f'Finished uploading user {key+1}/{len(user_paths)}')
 
-    #TODO: get uploaded users so it does not have to upload same users
+if __name__ == "__main__":
+    USER_PATH = '.\\data\\users\\'
+    KEY_PATH = '.\\database\\private_key.json'
+
+    upload_downloaded_users(USER_PATH, KEY_PATH)
+

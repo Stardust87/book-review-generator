@@ -104,27 +104,12 @@ def download_users(driver, users):
             print(f'Could not download user: {user_id}')
 
 def main():
-<<<<<<< HEAD
-<<<<<<< HEAD
     num_of_users_per_driver = 1000
     num_of_drivers = 3
     max_user = 110000000
 
-    sample = random.sample(range(1100000, 1500000), num_of_users_per_driver*num_of_drivers)
-=======
-    num_of_users_per_driver = 500
-    num_of_drivers = 4
-    max_user = 110000000
+    sample = random.sample(range(1800000, 2100000), num_of_users_per_driver*num_of_drivers)
 
-    sample = random.sample(range(1600000, 1650000), num_of_users_per_driver*num_of_drivers)
->>>>>>> 676d59ea5ad352fd7c925f2e674677e1ab662c8a
-=======
-    num_of_users_per_driver = 1000
-    num_of_drivers = 4
-    max_user = 110000000
-
-    sample = random.sample(range(31600000, 31650000), num_of_users_per_driver*num_of_drivers)
->>>>>>> 7d996533caa8db3af07484df81b18efbe538587d
     users_batch = np.split(np.array(sample), num_of_drivers)
 
     # drivers = [ webdriver.Chrome('C:\ChromeDriver\chromedriver.exe') for _ in range(num_of_drivers) ]

@@ -27,14 +27,19 @@ class FireAPI:
         else:  
             self.db.collection(u'books').document(book_id).set(book_obj)
 
-    def add_review(self, book_id, review_obj):
-        # TODO: do not check if review is repeated
-        reviews_ref = self.db.collection(u'books').document(book_id).collection(u'reviews')
-        is_repeated = reviews_ref.where('user_id', '==', review_obj['user_id']).get()
+    def add_review(self, book_id, review_obj, check_if_exists=False):
+        if check_if_exists:
+            reviews_ref = self.db.collection(u'books').document(book_id).collection(u'reviews')
+            is_repeated = reviews_ref.where('user_id', '==', review_obj['user_id']).get()
+        else: 
+            is_repeated = False
+
         if not is_repeated:
             self.db.collection(u'books').document(book_id).collection('reviews').add(review_obj)
         else:
             print(f"Warning: The book with id {book_id} already has the review given by user {review_obj['user_id']}.")
+
+# TODO: delete all reviews given user_id
 
 if __name__ == "__main__":
     api = FireAPI("./database/private_key.json")

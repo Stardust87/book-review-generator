@@ -41,13 +41,13 @@ def read_user(filename):
 
     return user_reviews
 
-def upload_user(api, filename):
+def upload_user(api, filename, check_user_review=False):
     user_data = read_user(filename)
 
     if len(user_data) > 1:
-        # for book_obj, review_obj in user_data:
-        #     api.add_book(*book_obj)
-        #     api.add_review(book_obj[0], review_obj)
+        for book_obj, review_obj in user_data:
+            api.add_book(*book_obj)
+            api.add_review(book_obj[0], review_obj, check_user_review)
         
         destination = filename.split('\\users')
         destination.insert(1, '\\uploaded_users')
@@ -67,7 +67,11 @@ def upload_downloaded_users(users_path, key):
 
     user_paths = glob.glob(USER_PATH+'*')
     for key, path in enumerate(user_paths):
-        upload_user(api, path)
+        print(f'Uploading {path}...')
+        if key == 0:
+            upload_user(api, path, True)
+        else:
+            upload_user(api, path)
         print(f'Finished uploading user {key+1}/{len(user_paths)}')
 
 if __name__ == "__main__":

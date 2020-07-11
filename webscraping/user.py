@@ -5,7 +5,7 @@ import numpy as np
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-from utils import save_json, get_downloaded_user_ids
+from utils import save_json
 
 def scroll(driver, timeout):
     last_height = driver.execute_script("return document.body.scrollHeight")
@@ -106,7 +106,6 @@ def download_users(driver, users):
 def main():
     num_of_users_per_driver = 1000
     num_of_drivers = 4
-    max_user = 110000000
 
     sample = random.sample(range(11800000, 21100000), num_of_users_per_driver*num_of_drivers)
 
@@ -114,7 +113,6 @@ def main():
 
     drivers = [ webdriver.Chrome('C:\ChromeDriver\chromedriver.exe') for _ in range(num_of_drivers) ]
     # drivers = [ webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') for _ in range(num_of_drivers) ]
-    #driver.set_window_position(-2000,0)#this function will minimize the window
 
     threads = []
     for k in range(num_of_drivers):

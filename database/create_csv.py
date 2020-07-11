@@ -2,6 +2,8 @@ import json, glob
 import numpy as np
 import pandas as pd
 
+from progress.bar import Bar
+
 def add_book(book_review, book_dict):
     book_id = int(book_review['book_id'])
     if book_id in book_dict['book_id']:
@@ -53,8 +55,11 @@ def create_csv(users_path, target_path):
     }
 
     filenames = glob.glob(users_path+'*')
-    for filename in filenames[:100]:
+    bar = Bar('Processing', max=len(filenames))
+    for filename in filenames:
         books_dict, reviews_dict = add_user(filename, books_dict, reviews_dict)
+        bar.next()
+    bar.finish()
 
     books_df = pd.DataFrame.from_dict(books_dict)
     reviews_df = pd.DataFrame.from_dict(reviews_dict)

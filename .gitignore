@@ -1,6 +1,7 @@
 # Misc
 data/
 private_key.json
+api_key.py
 
 # Python 
 # Byte-compiled / optimized / DLL files

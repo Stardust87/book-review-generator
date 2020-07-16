@@ -14,6 +14,7 @@ def download_book_data(driver, book_id):
     book_data = { 'book_id': book_id }
 
     driver.get("https://www.goodreads.com/book/show/"+str(book_id))
+    time.sleep(5)
     soup = BeautifulSoup(driver.page_source, 'lxml')
     
     try:
@@ -65,8 +66,11 @@ def download_books(driver, books):
     for book_id in books:
         try:
             book_data = download_book_data(driver, int(book_id))
-            save_json(book_data, f'.\\data\\books\\book_{int(book_id)}.json')
-            print(f"Success: [{book_id}] {book_data['book_title']} has been downloaded")
+            if book_data['book_title']:
+                save_json(book_data, f'.\\data\\books\\book_{int(book_id)}.json')
+                print(f"Success: [{book_id}] {book_data['book_title']} has been downloaded")
+            else:
+                print(f'Error: could not download book {book_id}')
         except:
             print(f'Error: could not download book {book_id}')
 
@@ -90,8 +94,8 @@ def main():
     DOWNLOADED_BOOKS_PATH = '.\\data\\books\\'
     BOOKS_CSV_PATH = '.\\data\\books_short.csv'
 
-    num_of_books_per_driver = 10
-    num_of_drivers = 2
+    num_of_books_per_driver = 20
+    num_of_drivers = 1
     total_num_of_books = num_of_drivers*num_of_books_per_driver
 
     drivers = [ webdriver.Chrome() for _ in range(num_of_drivers) ]
@@ -114,4 +118,4 @@ if __name__ == "__main__":
     main()
     end = time.perf_counter()
     print(f'TASK FINISHED IN {end-start} seconds.')
-    # print(download_book_data(webdriver.Chrome(), 16))
+    # print(download_book_data(webdriver.Chrome(), 1))

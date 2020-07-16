@@ -23,11 +23,9 @@ def download_book(book_id):
     URL = f'https://www.goodreads.com/book/show/{book_id}.xml?key={API_KEY}'
     res = requests.get(URL)
     if res.status_code == 200:
-        print(f'{book_id} -> {res.status_code}')
         return res.text
     else:
-        return 0
-
+        raise ValueError(f"API error: could not download book {book_id}")
 def save_xml(data, filename):
     with open(filename, 'w+', encoding="utf-8") as file_xml:
         file_xml.write(data)
@@ -52,5 +50,5 @@ def download_batch_of_books(num_of_books):
 
 
 if __name__ == "__main__":
-    download_batch_of_books(5)
+    download_batch_of_books(300)
 

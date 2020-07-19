@@ -64,7 +64,7 @@ def create_csv(users_path, target_path):
     books_df = pd.DataFrame.from_dict(books_dict)
     reviews_df = pd.DataFrame.from_dict(reviews_dict)
 
-    books_df.to_csv(target_path+'books.csv', index=False)
+    books_df.to_csv(target_path+'books_short.csv', index=False)
     reviews_df.to_csv(target_path+'reviews.csv', index=False)
 
 

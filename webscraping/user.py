@@ -5,7 +5,9 @@ import numpy as np
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-from utils import save_json
+def save_json(data, filename):
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile)
 
 def scroll(driver, timeout):
     last_height = driver.execute_script("return document.body.scrollHeight")
@@ -107,7 +109,7 @@ def main():
     num_of_users_per_driver = 1000
     num_of_drivers = 4
 
-    sample = random.sample(range(11800000, 21100000), num_of_users_per_driver*num_of_drivers)
+    sample = random.sample(range(9900000, 9910000), num_of_users_per_driver*num_of_drivers)
 
     users_batch = np.split(np.array(sample), num_of_drivers)
 

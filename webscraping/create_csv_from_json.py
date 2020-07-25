@@ -32,11 +32,8 @@ def add_user(filename, book_dict, review_dict):
     user_id = int(filename.split('_')[-1].split('.')[0])
 
     for book_review in data:
-        if book_review['user_rating'] == -1 and book_review['user_review'] == "None":
-            continue
-        else:
-            book_dict = add_book(book_review, book_dict)
-            review_dict = add_review(book_review, review_dict, user_id)
+        book_dict = add_book(book_review, book_dict)
+        review_dict = add_review(book_review, review_dict, user_id)
     
     return book_dict, review_dict
 

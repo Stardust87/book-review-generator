@@ -1,11 +1,12 @@
 import pandas as pd
+from config import preprocessing_cfg
 
 def preprocess(books_df, reviews_df):
     # keep only book type media
     books_df = books_df.loc[books_df.media_type == 'book']
 
     # keep only english books
-    english_codes = [ 'eng', 'en-US', 'en-GB',  'en-CA', 'en' ]
+    english_codes = preprocessing_cfg['languages']
     books_df = books_df.loc[books_df.language.isin(english_codes)]
 
     # link other books editions to its best_id
@@ -29,9 +30,9 @@ def preprocess(books_df, reviews_df):
     reviews_df = reviews_df.drop(reviews_df[redundant_books].index)
 
     # get users with min number of reviews
-    min_num_of_reviews = 20
+    min_reviews_per_user = preprocessing_cfg['min_reviews_per_user']
     reviews_per_user = reviews_df.groupby(['user_id']).count().book_id
-    users = reviews_per_user.loc[reviews_per_user > min_num_of_reviews].index.to_list()
+    users = reviews_per_user.loc[reviews_per_user > min_reviews_per_user].index.to_list()
     reviews_df = reviews_df.loc[reviews_df.user_id.isin(users)]
 
     return books_df, reviews_df, missing_books

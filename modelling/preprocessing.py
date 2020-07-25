@@ -25,6 +25,12 @@ def preprocess(books_df, reviews_df):
 
     books_df = best_edition_books
 
+    # remove books with less than X reviews
+    min_reviews_per_book = preprocessing_cfg['min_reviews_per_book']
+    reviews_per_book = reviews_df.groupby('book_id').count().user_id
+    books = reviews_per_book.loc[reviews_per_book >= min_reviews_per_book].index.to_list()
+    books_df = books_df.loc[books_df.id.isin(books)]
+
     ### AFTER PROCESSING BOOKS, REMOVE REDUNDANT ONES FROM REVIEWS_DF
     redundant_books = ~reviews_df.book_id.isin(books_df.id)
     reviews_df = reviews_df.drop(reviews_df[redundant_books].index)

@@ -36,22 +36,45 @@ def train_test_split(df, split_ratio):
     test_df = pd.DataFrame.from_dict(test_dict)
     train_df = pd.DataFrame.from_dict(train_dict)
 
+    all_train_books = train_df.book_id.unique()
+    all_test_books = test_df.book_id.unique()
+    unique_for_train_set = set(all_train_books)-set(all_test_books)
+    unique_for_test_set = set(all_test_books)-set(all_train_books)
+    
+    for book_id in list(unique_for_train_set):
+        train_df, test_df = move_sample_book_review(book_id, train_df, test_df)
+
+    for book_id in list(unique_for_test_set):
+        test_df, train_df = move_sample_book_review(book_id, test_df, train_df)
+
     return train_df, test_df
 
+def move_sample_book_review(book_id, df1, df2):
+    # IDEA: maybe move more books depending on difference between sets?
+    row_indices = df1.loc[df1.book_id == book_id].index.to_list()
+    if row_indices:
+        selected_index = random.choice(row_indices)
+        row_to_move = df1.loc[selected_index, :]
+        df1 = df1.drop([selected_index])
+        df2 = df2.append(row_to_move)
+
+    return df1, df2
+
 def get_implicit_data(df):
-    pass
+    df['label'] = 1
+    df.loc[df['user_rating'].isin([1, 2]), 'label'] = 0
+    df = df.drop(['user_rating'], axis=1)
+    return df
 
 
 if __name__ == "__main__":
 
     reviews_df = pd.read_csv('./data/reviews.csv')
-    # books_df = pd.read_csv('./data/books.csv')
+    books_df = pd.read_csv('./data/books.csv')
 
-    # books_df, reviews_df, missing_books = preprocess(books_df, reviews_df)
+    books_df, reviews_df, missing_books = preprocess(books_df, reviews_df)
 
     reviews_df = reviews_df.reindex(columns=['user_id', 'book_id', 'user_rating'])
     train_df, test_df = train_test_split(reviews_df, 0.25)
-    print(test_df.head())
-    print(train_df.head())
-    # print(reviews_df.groupby('user_id').count())
-    # get_implicit_data(reviews_df.head())
+    train_df = get_implicit_data(train_df)
+    test_df = get_implicit_data(test_df)

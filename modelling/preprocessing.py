@@ -1,4 +1,6 @@
+import time
 import pandas as pd
+
 from config import preprocessing_cfg
 
 def preprocess(books_df, reviews_df):
@@ -21,6 +23,8 @@ def preprocess(books_df, reviews_df):
         if best_book_id in best_edition_books.id:
             reviews_df.loc[reviews_df.book_id == book_id, 'book_id'] = best_book_id
         else:
+            book = not_best_edition_books.loc[not_best_edition_books.id == book_id, :]
+            best_edition_books.append(book)
             missing_books.append(best_book_id)
 
     books_df = best_edition_books
@@ -41,10 +45,19 @@ def preprocess(books_df, reviews_df):
     users = reviews_per_user.loc[reviews_per_user > min_reviews_per_user].index.to_list()
     reviews_df = reviews_df.loc[reviews_df.user_id.isin(users)]
 
+    # TODO: extract ALL text reviews and save them in separate csv file
+
     return books_df, reviews_df, missing_books
 
 if __name__ == "__main__":
     reviews_df = pd.read_csv('./data/reviews.csv')
     books_df = pd.read_csv('./data/books.csv')
 
+    start = time.perf_counter()
     books_df, reviews_df, missing_books = preprocess(books_df, reviews_df)
+    end = time.perf_counter()
+    print(f'Data has been processed in {(end-start):.2f} seconds.')
+
+    books_df.to_csv('./data/preprocessed/books.csv', index=False)
+    reviews_df.to_csv('./data/preprocessed/reviews.csv', index=False)
+

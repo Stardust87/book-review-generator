@@ -106,15 +106,15 @@ def download_users(driver, users):
             print(f'Could not download user: {user_id}')
 
 def main():
-    num_of_users_per_driver = 500
+    num_of_users_per_driver = 1000
     num_of_drivers = 4
 
-    sample = random.sample(range(9910000, 9930000), num_of_users_per_driver*num_of_drivers)
+    sample = random.sample(range(9940000, 9950000), num_of_users_per_driver*num_of_drivers)
 
     users_batch = np.split(np.array(sample), num_of_drivers)
 
-    # drivers = [ webdriver.Chrome('C:\ChromeDriver\chromedriver.exe') for _ in range(num_of_drivers) ]
-    drivers = [ webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') for _ in range(num_of_drivers) ]
+    drivers = [ webdriver.Chrome() for _ in range(num_of_drivers) ]
+    # drivers = [ webdriver.Chrome(r'C:\Users\aniak\chromedriver.exe') for _ in range(num_of_drivers) ]
 
     threads = []
     for k in range(num_of_drivers):

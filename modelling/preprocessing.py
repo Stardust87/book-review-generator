@@ -1,14 +1,15 @@
-import time
+import time, csv
 import pandas as pd
+import numpy as np
 
-from config import preprocessing_cfg
+from config import preprocessing_cfg as cfg
 
 def preprocess(books_df, reviews_df):
     # keep only book type media
     books_df = books_df.loc[books_df.media_type == 'book']
 
     # keep only english books
-    english_codes = preprocessing_cfg['languages']
+    english_codes = cfg['languages']
     books_df = books_df.loc[books_df.language.isin(english_codes)]
 
     # link other books editions to its best_id
@@ -29,10 +30,22 @@ def preprocess(books_df, reviews_df):
 
     books_df = best_edition_books
 
+    # remove books with text reviews shorter than X chars
+    reviews_df.user_review = reviews_df.user_review.replace("None", "")
+    reviews_df['review_length'] = reviews_df.user_review.apply(len)
+    min_length_of_text_review = cfg['min_length_of_text_review']
+    reviews_df = reviews_df.loc[reviews_df.review_length >= min_length_of_text_review]
+
     # remove books with less than X reviews
-    min_reviews_per_book = preprocessing_cfg['min_reviews_per_book']
+    min_reviews_per_book = cfg['min_reviews_per_book']
     reviews_per_book = reviews_df.groupby('book_id').count().user_id
     books = reviews_per_book.loc[reviews_per_book >= min_reviews_per_book].index.to_list()
+    books_df = books_df.loc[books_df.id.isin(books)]
+
+    # remove books with less than X text reviews
+    min_text_reviews_per_book = cfg['min_text_reviews_per_book']
+    text_reviews_per_book = reviews_df.groupby('book_id').count().user_review
+    books = text_reviews_per_book.loc[text_reviews_per_book >= min_text_reviews_per_book].index.to_list()
     books_df = books_df.loc[books_df.id.isin(books)]
 
     ### AFTER PROCESSING BOOKS, REMOVE REDUNDANT ONES FROM REVIEWS_DF
@@ -40,12 +53,10 @@ def preprocess(books_df, reviews_df):
     reviews_df = reviews_df.drop(reviews_df[redundant_books].index)
 
     # get users with min number of reviews
-    min_reviews_per_user = preprocessing_cfg['min_reviews_per_user']
+    min_reviews_per_user = cfg['min_reviews_per_user']
     reviews_per_user = reviews_df.groupby(['user_id']).count().book_id
     users = reviews_per_user.loc[reviews_per_user > min_reviews_per_user].index.to_list()
     reviews_df = reviews_df.loc[reviews_df.user_id.isin(users)]
-
-    # TODO: extract ALL text reviews and save them in separate csv file
 
     return books_df, reviews_df, missing_books
 
@@ -58,6 +69,7 @@ if __name__ == "__main__":
     end = time.perf_counter()
     print(f'Data has been processed in {(end-start):.2f} seconds.')
 
-    books_df.to_csv('./data/preprocessed/books.csv', index=False)
-    reviews_df.to_csv('./data/preprocessed/reviews.csv', index=False)
+    books_df.to_csv('./data/preprocessed/books_nlp.csv', index=False)
+    reviews_df.to_csv('./data/preprocessed/reviews_nlp.csv', index=False)
+    reviews_df.user_review.to_csv('./data/preprocessed/text_reviews.csv', index=False, header=False, quoting=csv.QUOTE_NONE, escapechar = ' ')
 

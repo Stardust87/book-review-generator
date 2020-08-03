@@ -2,9 +2,9 @@ import time, csv
 import pandas as pd
 import numpy as np
 
-from config import preprocessing_cfg as cfg
+from config import preprocessing_cfg_rec as cfg
 
-def preprocess(books_df, reviews_df):
+def preprocess_rec(books_df, reviews_df):
     # keep only book type media
     books_df = books_df.loc[books_df.media_type == 'book']
 
@@ -29,6 +29,16 @@ def preprocess(books_df, reviews_df):
             missing_books.append(best_book_id)
 
     books_df = best_edition_books
+
+    # replace a few non ascii chars and keep only reviews with all ascii chars
+    new_reviews = []
+    for review in reviews_df.iterrows():
+        review[1]['user_review'] = review[1]['user_review'].replace(chr(8216), '\'').replace(chr(8217), '\'').replace(chr(8220), '\"')
+        for char in review[1]['user_review']:
+            if ord(char) < 128:
+                new_reviews.append(review[1].values)
+    reviews_df = pd.DataFrame(new_reviews, columns=reviews_df.columns)
+
 
     # remove books with text reviews shorter than X chars
     reviews_df.user_review = reviews_df.user_review.replace("None", "")
@@ -65,11 +75,11 @@ if __name__ == "__main__":
     books_df = pd.read_csv('./data/books.csv')
 
     start = time.perf_counter()
-    books_df, reviews_df, missing_books = preprocess(books_df, reviews_df)
+    books_df, reviews_df, missing_books = preprocess_rec(books_df, reviews_df)
     end = time.perf_counter()
     print(f'Data has been processed in {(end-start):.2f} seconds.')
 
-    books_df.to_csv('./data/preprocessed/books_nlp.csv', index=False)
-    reviews_df.to_csv('./data/preprocessed/reviews_nlp.csv', index=False)
-    reviews_df.user_review.to_csv('./data/preprocessed/text_reviews.csv', index=False, header=False, quoting=csv.QUOTE_NONE, escapechar = ' ')
+    books_df.to_csv('./data/preprocessed/books.csv', index=False)
+    reviews_df.to_csv('./data/preprocessed/reviews.csv', index=False)
+    reviews_df.user_review.to_csv('./data/preprocessed/text_reviews_rec.csv', index=False, header=False, quoting=csv.QUOTE_NONE, escapechar = ' ')
 

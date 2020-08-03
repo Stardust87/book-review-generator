@@ -62,12 +62,6 @@ def preprocess_nlp(books_df, reviews_df):
     redundant_books = ~reviews_df.book_id.isin(books_df.id)
     reviews_df = reviews_df.drop(reviews_df[redundant_books].index)
 
-    # get users with min number of reviews
-    min_reviews_per_user = cfg['min_reviews_per_user']
-    reviews_per_user = reviews_df.groupby(['user_id']).count().book_id
-    users = reviews_per_user.loc[reviews_per_user > min_reviews_per_user].index.to_list()
-    reviews_df = reviews_df.loc[reviews_df.user_id.isin(users)]
-
     return books_df, reviews_df, missing_books
 
 if __name__ == "__main__":

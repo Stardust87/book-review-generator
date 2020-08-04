@@ -2,6 +2,7 @@
 data/
 private_key.json
 api_key.py
+.vscode/
 
 # Python 
 # Byte-compiled / optimized / DLL files

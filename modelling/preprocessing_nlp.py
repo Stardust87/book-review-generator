@@ -4,6 +4,13 @@ import numpy as np
 
 from config import preprocessing_cfg_nlp as cfg
 
+def is_non_ascii(text):
+    for char in text:
+        if ord(char) >= 128:
+            return True
+
+    return False
+
 def preprocess_nlp(books_df, reviews_df):
     # keep only book type media
     books_df = books_df.loc[books_df.media_type == 'book']
@@ -11,6 +18,12 @@ def preprocess_nlp(books_df, reviews_df):
     # keep only english books
     english_codes = cfg['languages']
     books_df = books_df.loc[books_df.language.isin(english_codes)]
+
+    # remove books with less than X reviews
+    min_reviews_per_book = cfg['min_reviews_per_book']
+    reviews_per_book = reviews_df.groupby('book_id').count().user_id
+    books = reviews_per_book.loc[reviews_per_book >= min_reviews_per_book].index.to_list()
+    books_df = books_df.loc[books_df.id.isin(books)]
 
     # link other books editions to its best_id
     best_edition_books = books_df.loc[books_df.id == books_df.best_id]
@@ -30,27 +43,11 @@ def preprocess_nlp(books_df, reviews_df):
 
     books_df = best_edition_books
 
-    # replace a few non ascii chars and keep only reviews with all ascii chars
-    new_reviews = []
-    for review in reviews_df.iterrows():
-        review[1]['user_review'] = review[1]['user_review'].replace(chr(8216), '\'').replace(chr(8217), '\'').replace(chr(8220), '\"')
-        for char in review[1]['user_review']:
-            if ord(char) < 128:
-                new_reviews.append(review[1].values)
-    reviews_df = pd.DataFrame(new_reviews, columns=reviews_df.columns)
-
-
-    # remove books with text reviews shorter than X chars
+    # remove entries with text reviews shorter than X chars
     reviews_df.user_review = reviews_df.user_review.replace("None", "")
     reviews_df['review_length'] = reviews_df.user_review.apply(len)
     min_length_of_text_review = cfg['min_length_of_text_review']
     reviews_df = reviews_df.loc[reviews_df.review_length >= min_length_of_text_review]
-
-    # remove books with less than X reviews
-    min_reviews_per_book = cfg['min_reviews_per_book']
-    reviews_per_book = reviews_df.groupby('book_id').count().user_id
-    books = reviews_per_book.loc[reviews_per_book >= min_reviews_per_book].index.to_list()
-    books_df = books_df.loc[books_df.id.isin(books)]
 
     # remove books with less than X text reviews
     min_text_reviews_per_book = cfg['min_text_reviews_per_book']
@@ -61,6 +58,15 @@ def preprocess_nlp(books_df, reviews_df):
     ### AFTER PROCESSING BOOKS, REMOVE REDUNDANT ONES FROM REVIEWS_DF
     redundant_books = ~reviews_df.book_id.isin(books_df.id)
     reviews_df = reviews_df.drop(reviews_df[redundant_books].index)
+
+    # replace a few non ascii chars and keep only reviews with all ascii chars
+    new_reviews = []
+    for review in reviews_df.iterrows():
+        # TODO: handle ALL non-ascii chars present in data
+        review[1]['user_review'] = review[1]['user_review'].replace(chr(8216), '\'').replace(chr(8217), '\'').replace(chr(8220), '\"')
+        if not is_non_ascii(review[1]['user_review']):
+            new_reviews.append(review[1].values)
+    reviews_df = pd.DataFrame(new_reviews, columns=reviews_df.columns)
 
     return books_df, reviews_df, missing_books
 

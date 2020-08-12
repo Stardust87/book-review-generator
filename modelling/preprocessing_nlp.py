@@ -25,6 +25,9 @@ def preprocess_nlp(books_df, reviews_df):
     books = reviews_per_book.loc[reviews_per_book >= min_reviews_per_book].index.to_list()
     books_df = books_df.loc[books_df.id.isin(books)]
 
+    books_df['description'] = books_df['description'].fillna('')
+    books_df['description'] = books_df['description'].apply(lambda x: x.replace('\n', ' '))
+
     # link other books editions to its best_id
     best_edition_books = books_df.loc[books_df.id == books_df.best_id]
     not_best_edition_books = books_df.loc[books_df.id != books_df.best_id]
@@ -49,6 +52,10 @@ def preprocess_nlp(books_df, reviews_df):
     min_length_of_text_review = cfg['min_length_of_text_review']
     reviews_df = reviews_df.loc[reviews_df.review_length >= min_length_of_text_review]
 
+    # create new feature - rating category
+    reviews_df = reviews_df.drop(reviews_df.loc[reviews_df.user_rating == -1].index)
+    reviews_df['rating_category'] = reviews_df.user_rating.map({1: 'bad', 2: 'bad', 3: 'moderate', 4: 'good', 5: 'good'})
+
     # remove books with less than X text reviews
     min_text_reviews_per_book = cfg['min_text_reviews_per_book']
     text_reviews_per_book = reviews_df.groupby('book_id').count().user_review
@@ -68,6 +75,7 @@ def preprocess_nlp(books_df, reviews_df):
             new_reviews.append(review[1].values)
     reviews_df = pd.DataFrame(new_reviews, columns=reviews_df.columns)
 
+
     return books_df, reviews_df, missing_books
 
 if __name__ == "__main__":
@@ -81,5 +89,5 @@ if __name__ == "__main__":
 
     books_df.to_csv('./data/preprocessed/books_nlp.csv', index=False)
     reviews_df.to_csv('./data/preprocessed/reviews_nlp.csv', index=False)
-    reviews_df.user_review.to_csv('./data/preprocessed/text_reviews.csv', index=False, header=False, quoting=csv.QUOTE_NONE, escapechar = ' ')
+    # reviews_df.user_review.to_csv('./data/preprocessed/text_reviews.csv', index=False, header=False, quoting=csv.QUOTE_NONE, escapechar = ' ')
 

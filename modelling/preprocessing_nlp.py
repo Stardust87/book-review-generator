@@ -31,7 +31,6 @@ def preprocess_nlp(books_df, reviews_df):
     # link other books editions to its best_id
     best_edition_books = books_df.loc[books_df.id == books_df.best_id]
     not_best_edition_books = books_df.loc[books_df.id != books_df.best_id]
-    missing_books = []
 
     for row in not_best_edition_books.iterrows():
         best_book_id = row[1]['best_id']
@@ -42,7 +41,6 @@ def preprocess_nlp(books_df, reviews_df):
         else:
             book = not_best_edition_books.loc[not_best_edition_books.id == book_id, :]
             best_edition_books.append(book)
-            missing_books.append(best_book_id)
 
     books_df = best_edition_books
 
@@ -54,7 +52,7 @@ def preprocess_nlp(books_df, reviews_df):
 
     # create new feature - rating category
     reviews_df = reviews_df.drop(reviews_df.loc[reviews_df.user_rating == -1].index)
-    reviews_df['rating_category'] = reviews_df.user_rating.map({1: 'bad', 2: 'bad', 3: 'moderate', 4: 'good', 5: 'good'})
+    reviews_df['rating_category'] = reviews_df.user_rating.map({1: 'negative', 2: 'negative', 3: 'positive', 4: 'positive', 5: 'positive'})
 
     # remove books with less than X text reviews
     min_text_reviews_per_book = cfg['min_text_reviews_per_book']
@@ -71,19 +69,19 @@ def preprocess_nlp(books_df, reviews_df):
     for review in reviews_df.iterrows():
         # TODO: handle ALL non-ascii chars present in data
         review[1]['user_review'] = review[1]['user_review'].replace(chr(8216), '\'').replace(chr(8217), '\'').replace(chr(8220), '\"')
+        review[1]['user_review'] = review[1]['user_review'].replace('**spoiler alert**', '')
         if not is_non_ascii(review[1]['user_review']):
             new_reviews.append(review[1].values)
     reviews_df = pd.DataFrame(new_reviews, columns=reviews_df.columns)
 
-
-    return books_df, reviews_df, missing_books
+    return books_df, reviews_df
 
 if __name__ == "__main__":
     reviews_df = pd.read_csv('./data/reviews.csv')
     books_df = pd.read_csv('./data/books.csv')
 
     start = time.perf_counter()
-    books_df, reviews_df, missing_books = preprocess_nlp(books_df, reviews_df)
+    books_df, reviews_df = preprocess_nlp(books_df, reviews_df)
     end = time.perf_counter()
     print(f'Data has been processed in {(end-start):.2f} seconds.')
 

@@ -70,6 +70,7 @@ def preprocess_nlp(books_df, reviews_df):
         # TODO: handle ALL non-ascii chars present in data
         review[1]['user_review'] = review[1]['user_review'].replace(chr(8216), '\'').replace(chr(8217), '\'').replace(chr(8220), '\"')
         review[1]['user_review'] = review[1]['user_review'].replace('**spoiler alert**', '')
+        review[1]['user_review'] = review[1]['user_review'].replace('\\\'', '\'')
         if not is_non_ascii(review[1]['user_review']):
             new_reviews.append(review[1].values)
     reviews_df = pd.DataFrame(new_reviews, columns=reviews_df.columns)

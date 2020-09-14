@@ -26,6 +26,7 @@ def download_book(book_id):
         return res.text
     else:
         raise ValueError(f"API error: could not download book {book_id}")
+    
 def save_xml(data, filename):
     with open(filename, 'w+', encoding="utf-8") as file_xml:
         file_xml.write(data)

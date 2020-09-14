@@ -21,6 +21,7 @@ final_df.to_csv(output_path, index=False)
 ray.init(object_store_memory=100 * 1000000,
         redis_max_memory=100 * 1000000)
 
+# create encoded dataset, ready to train
 encode_keywords(csv_path=output_path,
                 out_path=output_encoded_path,
                 category_field='rating_category',

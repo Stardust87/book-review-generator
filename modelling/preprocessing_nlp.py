@@ -12,21 +12,12 @@ def is_non_ascii(text):
     return False
 
 def preprocess_nlp(books_df, reviews_df):
-    # keep only book type media
+    # keep only books media 
     books_df = books_df.loc[books_df.media_type == 'book']
 
     # keep only english books
     english_codes = cfg['languages']
     books_df = books_df.loc[books_df.language.isin(english_codes)]
-
-    # remove books with less than X reviews
-    min_reviews_per_book = cfg['min_reviews_per_book']
-    reviews_per_book = reviews_df.groupby('book_id').count().user_id
-    books = reviews_per_book.loc[reviews_per_book >= min_reviews_per_book].index.to_list()
-    books_df = books_df.loc[books_df.id.isin(books)]
-
-    books_df['description'] = books_df['description'].fillna('')
-    books_df['description'] = books_df['description'].apply(lambda x: x.replace('\n', ' '))
 
     # link other books editions to its best_id
     best_edition_books = books_df.loc[books_df.id == books_df.best_id]
@@ -43,6 +34,15 @@ def preprocess_nlp(books_df, reviews_df):
             best_edition_books.append(book)
 
     books_df = best_edition_books
+
+    # remove books with less than X reviews
+    min_reviews_per_book = cfg['min_reviews_per_book']
+    reviews_per_book = reviews_df.groupby('book_id').count().user_id
+    books = reviews_per_book.loc[reviews_per_book >= min_reviews_per_book].index.to_list()
+    books_df = books_df.loc[books_df.id.isin(books)]
+
+    books_df['description'] = books_df['description'].fillna('')
+    books_df['description'] = books_df['description'].apply(lambda x: x.replace('\n', ' '))
 
     # remove entries with text reviews shorter than X chars
     reviews_df.user_review = reviews_df.user_review.replace("None", "")

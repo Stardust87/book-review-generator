@@ -131,6 +131,3 @@ if __name__ == '__main__':
     end = time.perf_counter()
     print(f'TASK FINISHED IN {end-start} seconds.')
             
-
-
-# driver.quit()

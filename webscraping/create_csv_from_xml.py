@@ -143,21 +143,3 @@ if __name__ == "__main__":
     BOOKS_PATH = Path('./data/books_xml/')
     TARGET = Path('./data/')
     create_csv(BOOKS_PATH, TARGET)
-    # add_book('./data/books_xml/book_10000191.xml', {
-    #     'id': [],
-    #     'best_id': [],
-    #     'title': [],
-    #     'author': [],
-    #     'description': [],
-    #     'year': [],
-    #     'num_pages': [],
-    #     'format': [],
-    #     'media_type': [],
-    #     'language': [],
-    #     'image_url': [],
-    #     'average_rating': [],
-    #     'rating_dist': [],
-    #     'ratings_count': [],
-    #     'text_reviews_count': [],
-    #     'shelves': []
-    # })
